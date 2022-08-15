@@ -1,9 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-type Data = {
+/**
+ * This is a test of TypeDoc.
+ */
+export type Data = {
   name: string;
 };
 
+/**
+ * A simple API endpoint.
+ * @param req the request
+ * @param res the response
+ * @returns false;
+ */
 // noinspection JSUnusedGlobalSymbols
 export default function handler(
   req: NextApiRequest,

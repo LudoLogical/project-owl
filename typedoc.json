@@ -1,0 +1,14 @@
+{
+    "out": "docs",
+    "entryPoints": ["src"],
+    "entryPointStrategy": "expand",
+    "exclude": [
+        "**/_app.tsx",
+        "**/_document.tsx"
+    ],
+    "theme": "default",
+    "name": "Project Owl",
+    "includeVersion": true,
+    "readme": "README.md"
+
+}
