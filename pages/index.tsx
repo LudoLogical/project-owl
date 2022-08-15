@@ -1,5 +1,5 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
+import type { NextPage } from 'next';
+import Head from 'next/head';
 
 const Home: NextPage = () => {
   // noinspection HtmlUnknownTarget
@@ -7,12 +7,12 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>Project Owl</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel='icon' href='/favicon.ico' />
       </Head>
       <h1>Project Owl</h1>
     </>
-  )
-}
+  );
+};
 
 // noinspection JSUnusedGlobalSymbols
-export default Home
+export default Home;
