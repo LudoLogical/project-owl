@@ -2,8 +2,6 @@
   "extends": ["next/core-web-vitals", "prettier"],
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "quotes": ["error", "single"],
-    "jsx-quotes": ["error", "prefer-single"],
     "@typescript-eslint/consistent-type-definitions": ["warn", "type"]
   }
 }
