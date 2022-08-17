@@ -1,4 +1,4 @@
-export const REVIEW_STEPS = [
+export const REVIEW_STEP_NAMES = [
   'Product',
   'Release(s)',
   'Extras',

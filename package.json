@@ -9,6 +9,7 @@
     "lint": "next lint --fix && prettier --check src/**/*.{js,jsx,ts,tsx}"
   },
   "dependencies": {
+    "axios": "^0.27.2",
     "daisyui": "^2.24.0",
     "next": "12.2.5",
     "react": "18.2.0",

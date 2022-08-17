@@ -6,7 +6,7 @@ const ReviewFAQ: FC<{
 }> = ({ currentStep }) => {
   return (
     <>
-      {REVIEW_FAQ[currentStep - 1].map((faq, index) => (
+      {REVIEW_FAQ[currentStep].map((faq, index) => (
         <div key={index} className={'collapse collapse-arrow'}>
           <input type={'checkbox'} />
           <h2 className={'collapse-title text-lg font-medium'}>
