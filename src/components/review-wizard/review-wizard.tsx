@@ -26,18 +26,16 @@ const ReviewWizard: FC = () => {
       >
         <ReviewProgress currentStep={currentStep} />
       </section>
-      <main
-        className={
-          'flex-1 overflow-y-auto min-w-[20rem] max-w-2xl px-5 mx-auto my-10'
-        }
-      >
-        <h1 className={'text-2xl text-center'}>
-          {(review.subject?.product && currentStep > 0
-            ? 'Review of '
-            : 'Create a new review') + (review.subject?.product ?? '')}
-        </h1>
-        <div className='divider'></div>
-        {STEPS[currentStep]({ review: review, setReview: setReview })}
+      <main className={'flex-1 overflow-y-auto px-5 mx-auto py-10'}>
+        <div className={'min-w-[20rem] max-w-2xl mx-auto'}>
+          <h1 className={'text-2xl text-center'}>
+            {(review.subject?.product && currentStep > 0
+              ? 'Review of '
+              : 'Create a new review') + (review.subject?.product ?? '')}
+          </h1>
+          <div className='divider'></div>
+          {STEPS[currentStep]({ review: review, setReview: setReview })}
+        </div>
       </main>
       <section
         className={'flex-none bg-base-200 w-96 h-fill overflow-y-auto p-2'}
