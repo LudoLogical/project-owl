@@ -1,6 +1,6 @@
 import { FC, ReactNode } from 'react';
 import Image from 'next/image';
-import { ProductsSearchResult } from '../pages/api/search-products';
+import { DigitalProductsSearchResult } from '../pages/api/search-products';
 import {
   getIGDBImageFromID,
   IGDB_IMAGE_RESOLUTIONS,
@@ -10,7 +10,7 @@ import { timestampFormatDMY } from '../utils/timestamp-format';
 import { FaGamepad } from 'react-icons/fa';
 
 const ProductsTable: FC<{
-  products: ProductsSearchResult[];
+  products: DigitalProductsSearchResult[];
   buttonContent: ReactNode;
   useCircularButton?: boolean;
   onClick: Function;

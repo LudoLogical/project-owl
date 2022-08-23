@@ -1,7 +1,7 @@
 import { ChangeEvent, FC } from 'react';
 import Review from '../../../model/review';
 import RecursivePartial from '../../../utils/recursive-partial';
-import { ProductsSearchResult } from '../../../pages/api/search-products';
+import { DigitalProductsSearchResult } from '../../../pages/api/search-products';
 import { FiX } from 'react-icons/fi';
 import ProductsTable from '../../products-table';
 import ProductsSearch from '../../products-search';
@@ -10,7 +10,7 @@ const ProductStep: FC<{
   review: RecursivePartial<Review>;
   setReview: Function;
   setCanAdvance: Function;
-  productDetails: ProductsSearchResult | undefined;
+  productDetails: DigitalProductsSearchResult | undefined;
   setProductDetails: Function;
 }> = ({
   review,
@@ -43,7 +43,7 @@ const ProductStep: FC<{
     setIsDigital(event.target.value === 'digital');
   }
 
-  function handleProductSelection(product: ProductsSearchResult) {
+  function handleProductSelection(product: DigitalProductsSearchResult) {
     setProductDetails(product);
     setProduct(product.id);
     setCanAdvance(true);
@@ -99,7 +99,7 @@ const ProductStep: FC<{
             products={[productDetails]}
             buttonContent={<FiX className={'w-6 h-6'} />}
             useCircularButton={true}
-            onClick={(product: ProductsSearchResult) => {
+            onClick={(product: DigitalProductsSearchResult) => {
               setCanAdvance(false);
               setProduct(undefined);
               setProductDetails(undefined);

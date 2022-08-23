@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
-import { ProductsSearchResult } from '../pages/api/search-products';
+import { DigitalProductsSearchResult } from '../pages/api/search-products';
 import { VscLoading } from 'react-icons/vsc';
 import { HiOutlineSearch } from 'react-icons/hi';
 import ProductsTable from './products-table';
@@ -22,7 +22,7 @@ const ProductsSearch: FC<{
   const [maxReached, setMaxReached] = useState(false);
   const [loadingResults, setLoadingResults] = useState(LoadingType.NONE);
   const [searchResults, setSearchResults] = useState<
-    ProductsSearchResult[][] | undefined
+    DigitalProductsSearchResult[][] | undefined
   >();
 
   useEffect(() => {
@@ -112,7 +112,7 @@ const ProductsSearch: FC<{
             <ProductsTable
               products={searchResults[page - 1]}
               buttonContent={'Select'}
-              onClick={(product: ProductsSearchResult) => {
+              onClick={(product: DigitalProductsSearchResult) => {
                 setMaxReached(false);
                 setSearchResults(undefined);
                 handleProductSelection(product);

@@ -1,10 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import apicalypse from 'apicalypse';
 import { getIGDBRequestOptions } from '../../utils/igdb/igdb-backend-utils';
+import axios from 'axios';
+import { BGA_BASE_URL, BGA_CLIENT_ID } from '../../utils/bga/bga-backend-utils';
 
 export const PAGE_SIZE = 10;
 
-export type ProductsSearchResult = {
+export type DigitalProductsSearchResult = {
   id: number;
   first_release_date?: number;
   name: string;
@@ -20,10 +22,20 @@ export type ProductsSearchResult = {
   ];
 };
 
+export type PhysicalProductsSearchResult = {
+  id: string;
+  name: string;
+  year_published?: number;
+  image_url: string;
+  publishers: string[];
+};
+
 // noinspection JSUnusedGlobalSymbols
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ProductsSearchResult[] | string>
+  res: NextApiResponse<
+    DigitalProductsSearchResult[] | PhysicalProductsSearchResult[] | string
+  >
 ) {
   const query = req.query.query as string;
   const page = parseInt(req.query.page as string);
@@ -43,7 +55,19 @@ export default async function handler(
       .request('/games');
     res.status(200).json(response.data);
   } else if (isNotDigital && !isDigital) {
-    res.status(400).send('Not yet supported.');
+    await axios({
+      method: 'GET',
+      url: BGA_BASE_URL + '/search',
+      params: {
+        client_id: BGA_CLIENT_ID,
+        fields: 'id,name,year_published,image_url,publishers',
+        limit: PAGE_SIZE,
+        skip: PAGE_SIZE * (page - 1),
+        name: query,
+      },
+    }).then((response) => {
+      res.status(200).json(response.data.games);
+    });
   } else {
     res.status(400).send('isDigital must be either true or false.');
   }
