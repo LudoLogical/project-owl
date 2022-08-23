@@ -12,19 +12,35 @@ import {
 import { timestampFormatDMY } from '../../../utils/timestamp-format';
 import { HiOutlineSearch } from 'react-icons/hi';
 import { VscLoading } from 'react-icons/vsc';
+import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
+import { FaGamepad } from 'react-icons/fa';
+
+enum LoadingType {
+  NONE,
+  SEARCH_BOX,
+  NEXT_PAGE,
+}
 
 const ProductStep: FC<{
   review: RecursivePartial<Review>;
   setReview: Function;
-}> = ({ review, setReview }) => {
+  setCanAdvance: Function;
+}> = ({ review, setReview, setCanAdvance }) => {
   const [searchBoxInput, setSearchBoxInput] = useState('');
   const [query, setQuery] = useState('');
-  const [loadingResults, setLoadingResults] = useState(false);
+  const [page, setPage] = useState(1);
+  const [maxReached, setMaxReached] = useState(false);
+  const [loadingResults, setLoadingResults] = useState(LoadingType.NONE);
   const [searchResults, setSearchResults] = useState<
-    GamesSearchResult[] | undefined
+    GamesSearchResult[][] | undefined
   >();
 
   function handleIsDigitalSelection(event: ChangeEvent<HTMLInputElement>) {
+    setSearchResults(undefined);
+    setPage(1);
+    setQuery('');
+    setMaxReached(false);
+    setSearchBoxInput('');
     setReview({
       ...review,
       subject: {
@@ -35,7 +51,9 @@ const ProductStep: FC<{
   }
 
   function fetchGames(query: string, page: number) {
-    setLoadingResults(true);
+    setLoadingResults(
+      page === 1 ? LoadingType.SEARCH_BOX : LoadingType.NEXT_PAGE
+    );
     axios
       .get('/api/search-games', {
         params: {
@@ -45,8 +63,19 @@ const ProductStep: FC<{
         },
       })
       .then((response) => {
-        setSearchResults(response.data);
-        setLoadingResults(false);
+        if (response.data.length === 0) {
+          setMaxReached(true);
+        } else {
+          setPage(page);
+          if (page === 1) {
+            // i.e., if the query is new
+            setSearchResults([response.data]);
+            setMaxReached(false);
+          } else {
+            setSearchResults(searchResults!.concat([response.data]));
+          }
+        }
+        setLoadingResults(LoadingType.NONE);
       })
       .catch((error) => console.log(error));
   }
@@ -83,7 +112,7 @@ const ProductStep: FC<{
 
       {review.subject?.productIsDigital !== undefined &&
         review.subject?.productIsDigital !== null && (
-          <>
+          <div className={'my-3'}>
             <h3>What product would you like to review?</h3>
             <div className='form-control mt-3'>
               <div className='input-group'>
@@ -101,7 +130,7 @@ const ProductStep: FC<{
                     fetchGames(searchBoxInput, 1);
                   }}
                 >
-                  {loadingResults ? (
+                  {loadingResults === LoadingType.SEARCH_BOX ? (
                     <VscLoading className={'w-6 h-6 animate-spin'} />
                   ) : (
                     <HiOutlineSearch className={'w-6 h-6'} />
@@ -109,56 +138,111 @@ const ProductStep: FC<{
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )}
 
       {searchResults !== undefined && (
-        <table className='table table-auto w-full my-8'>
-          <tbody>
-            {searchResults.map((result, index) => (
-              <tr key={index}>
-                <td
-                  className={'p-[16px] w-max'}
-                  width={
-                    (
-                      IGDB_IMAGE_RESOLUTIONS[IGDBImageType.S_COVER][0] + 32
-                    ).toString() + 'px'
+        <>
+          <table className='table table-auto w-full mt-8 mb-6'>
+            <tbody>
+              {searchResults[page - 1].map((result, index) => (
+                <tr key={index}>
+                  <td>
+                    <div className={'flex flex-row items-center'}>
+                      {result.cover ? (
+                        <Image
+                          src={getIGDBImageFromID(
+                            result.cover.image_id,
+                            IGDBImageType.S_COVER
+                          )}
+                          width={
+                            IGDB_IMAGE_RESOLUTIONS[IGDBImageType.S_COVER][0]
+                          }
+                          height={
+                            IGDB_IMAGE_RESOLUTIONS[IGDBImageType.S_COVER][1]
+                          }
+                          alt={'(Cover Art)'}
+                          layout={'fixed'}
+                          objectFit={'contain'}
+                        />
+                      ) : (
+                        <div
+                          className={
+                            'flex place-content-center place-items-center w-[90px] h-[128px] ' +
+                            'bg-base-300'
+                          }
+                        >
+                          <FaGamepad
+                            size={
+                              IGDB_IMAGE_RESOLUTIONS[IGDBImageType.S_COVER][0] -
+                              30
+                            }
+                          />
+                        </div>
+                      )}
+
+                      <div className={'flex flex-col flex-1 px-5'}>
+                        <h4 className={'text-lg whitespace-normal'}>
+                          {result.name}
+                        </h4>
+                        <p className={'text-base-content/50 whitespace-normal'}>
+                          {result.first_release_date
+                            ? timestampFormatDMY(
+                                result.first_release_date * 1000
+                              )
+                            : 'Release Date Unknown'}
+                          <br />
+                          {result.platforms
+                            ? result.platforms.map(
+                                (platform, index) =>
+                                  platform.name +
+                                  (index === result.platforms.length - 1
+                                    ? ''
+                                    : ', ')
+                              )
+                            : 'Platforms Unknown'}
+                        </p>
+                      </div>
+                      <button className={'btn btn-primary mr-2'}>Select</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className={'flex place-content-center place-items-center my-2'}>
+            <div className='btn-group'>
+              <button
+                className='btn'
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1}
+              >
+                <FiArrowLeft />
+              </button>
+              <button className='btn no-animation cursor-default hover:bg-neutral hover:border-neutral'>
+                Page {page}
+              </button>
+              <button
+                className='btn'
+                onClick={() => {
+                  if (searchResults.length < page + 1) {
+                    fetchGames(query, page + 1);
+                  } else {
+                    setPage(page + 1);
+                    console.log('page increased from body');
                   }
-                >
-                  <Image
-                    src={getIGDBImageFromID(
-                      result.cover.image_id,
-                      IGDBImageType.S_COVER
-                    )}
-                    width={IGDB_IMAGE_RESOLUTIONS[IGDBImageType.S_COVER][0]}
-                    height={IGDB_IMAGE_RESOLUTIONS[IGDBImageType.S_COVER][1]}
-                    alt={'(Cover Art)'}
-                    layout={'fixed'}
-                  />
-                </td>
-                <td>
-                  <h4 className={'text-lg whitespace-normal'}>{result.name}</h4>
-                  <p className={'text-base-content/50 whitespace-normal'}>
-                    {result.first_release_date
-                      ? timestampFormatDMY(result.first_release_date * 1000)
-                      : 'Release Date Unknown'}
-                    <br />
-                    {result.platforms
-                      ? result.platforms.map(
-                          (platform, index) =>
-                            platform.name +
-                            (index === result.platforms.length - 1 ? '' : ', ')
-                        )
-                      : 'Platforms Unknown'}
-                  </p>
-                </td>
-                <td className={'p-[16px] pr-6'} width={'80px'}>
-                  <button className={'btn btn-primary'}>Select</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                }}
+                disabled={maxReached && page + 1 > searchResults.length}
+              >
+                {loadingResults === LoadingType.NEXT_PAGE ? (
+                  <VscLoading className={'animate-spin'} />
+                ) : (
+                  <FiArrowRight />
+                )}
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </>
   );
