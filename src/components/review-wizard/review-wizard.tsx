@@ -5,6 +5,7 @@ import STEPS from './steps/steps';
 import Review from '../../model/review';
 import RecursivePartial from '../../utils/recursive-partial';
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
+import { ProductsSearchResult } from '../../pages/api/search-products';
 
 const emptyReview: RecursivePartial<Review> = {
   reviewer: {},
@@ -17,6 +18,10 @@ const ReviewWizard: FC = () => {
   const [review, setReview] = useState(emptyReview);
   const [currentStep, setCurrentStep] = useState(0);
   const [canAdvance, setCanAdvance] = useState(false);
+
+  const [productDetails, setProductDetails] = useState<
+    ProductsSearchResult | undefined
+  >();
 
   return (
     <div
@@ -37,15 +42,16 @@ const ReviewWizard: FC = () => {
         >
           <div>
             <h1 className={'text-2xl text-center'}>
-              {(review.subject?.product && currentStep > 0
-                ? 'Review of '
-                : 'Create a new review') + (review.subject?.product ?? '')}
+              {(productDetails ? 'Review of ' : 'Create a new review') +
+                (productDetails?.name ?? '')}
             </h1>
             <div className='divider'></div>
             {STEPS[currentStep]({
               review: review,
               setReview: setReview,
               setCanAdvance: setCanAdvance,
+              productDetails: productDetails,
+              setProductDetails: setProductDetails,
             })}
           </div>
           <div className={'flex flex-row justify-between mt-3'}>

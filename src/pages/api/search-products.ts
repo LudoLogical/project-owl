@@ -4,7 +4,7 @@ import { getIGDBRequestOptions } from '../../utils/igdb/igdb-backend-utils';
 
 export const PAGE_SIZE = 10;
 
-export type GamesSearchResult = {
+export type ProductsSearchResult = {
   id: number;
   first_release_date?: number;
   name: string;
@@ -23,7 +23,7 @@ export type GamesSearchResult = {
 // noinspection JSUnusedGlobalSymbols
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<GamesSearchResult[] | string>
+  res: NextApiResponse<ProductsSearchResult[] | string>
 ) {
   const query = req.query.query as string;
   const page = parseInt(req.query.page as string);

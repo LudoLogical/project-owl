@@ -12,7 +12,9 @@ const ReviewFAQ: FC<{
           <h2 className={'collapse-title text-lg font-medium'}>
             {faq.question}
           </h2>
-          <p className={'collapse-content'}>{faq.answer}</p>
+          <p className={'collapse-content text-base-content/75'}>
+            {faq.answer}
+          </p>
         </div>
       ))}
     </>
