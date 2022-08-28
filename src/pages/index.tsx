@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 
 const Index: NextPage = () => {
   return (
@@ -7,7 +8,10 @@ const Index: NextPage = () => {
       <Head>
         <title>Project Owl</title>
       </Head>
-      <h1>Home page coming soon! For now, check out /create-review.</h1>
+      <h1>
+        Home page coming soon! For now, check out{' '}
+        <Link href={'/create-review'}>/create-review</Link>.
+      </h1>
     </>
   );
 };
