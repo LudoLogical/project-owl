@@ -1,7 +1,10 @@
-import { ChangeEvent, FC } from 'react';
+import { ChangeEvent, FC, useState } from 'react';
 import Review from '../../../model/review';
 import RecursivePartial from '../../../utils/recursive-partial';
-import { DigitalProductsSearchResult } from '../../../pages/api/search-products';
+import {
+  DigitalProductsSearchResult,
+  PhysicalProductsSearchResult,
+} from '../../../pages/api/search-products';
 import { FiX } from 'react-icons/fi';
 import ProductsTable from '../../products-table';
 import ProductsSearch from '../../products-search';
@@ -10,7 +13,10 @@ const ProductStep: FC<{
   review: RecursivePartial<Review>;
   setReview: Function;
   setCanAdvance: Function;
-  productDetails: DigitalProductsSearchResult | undefined;
+  productDetails:
+    | DigitalProductsSearchResult
+    | PhysicalProductsSearchResult
+    | undefined;
   setProductDetails: Function;
 }> = ({
   review,
@@ -19,6 +25,8 @@ const ProductStep: FC<{
   productDetails,
   setProductDetails,
 }) => {
+  const [transitionLock, setTransitionLock] = useState(false);
+
   function setIsDigital(isDigital: boolean | undefined) {
     setReview({
       ...review,
@@ -40,10 +48,13 @@ const ProductStep: FC<{
   }
 
   function handleIsDigitalSelection(event: ChangeEvent<HTMLInputElement>) {
+    setTransitionLock(true);
     setIsDigital(event.target.value === 'digital');
   }
 
-  function handleProductSelection(product: DigitalProductsSearchResult) {
+  function handleProductSelection(
+    product: DigitalProductsSearchResult | PhysicalProductsSearchResult
+  ) {
     setProductDetails(product);
     setProduct(product.id);
     setCanAdvance(true);
@@ -85,6 +96,8 @@ const ProductStep: FC<{
             <ProductsSearch
               searchForDigital={review.subject.productIsDigital}
               handleProductSelection={handleProductSelection}
+              transitionLock={transitionLock}
+              setTransitionLock={setTransitionLock}
             />
           )}
       </>
@@ -96,7 +109,12 @@ const ProductStep: FC<{
         <h3>Selected product:</h3>
         <div className={'mt-5 mb-3'}>
           <ProductsTable
-            products={[productDetails]}
+            products={
+              review.subject?.productIsDigital
+                ? [productDetails as DigitalProductsSearchResult]
+                : [productDetails as PhysicalProductsSearchResult]
+            }
+            productsAreDigital={review.subject?.productIsDigital as boolean}
             buttonContent={<FiX className={'w-6 h-6'} />}
             useCircularButton={true}
             onClick={(product: DigitalProductsSearchResult) => {

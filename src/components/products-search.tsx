@@ -1,6 +1,10 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
-import { DigitalProductsSearchResult } from '../pages/api/search-products';
+import {
+  DigitalProductsSearchResult,
+  PAGE_SIZE,
+  PhysicalProductsSearchResult,
+} from '../pages/api/search-products';
 import { VscLoading } from 'react-icons/vsc';
 import { HiOutlineSearch } from 'react-icons/hi';
 import ProductsTable from './products-table';
@@ -15,14 +19,23 @@ enum LoadingType {
 const ProductsSearch: FC<{
   searchForDigital: boolean;
   handleProductSelection: Function;
-}> = ({ searchForDigital, handleProductSelection }) => {
+  transitionLock: boolean;
+  setTransitionLock?: Function;
+}> = ({
+  searchForDigital,
+  handleProductSelection,
+  transitionLock,
+  setTransitionLock,
+}) => {
   const [searchBoxInput, setSearchBoxInput] = useState('');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [maxReached, setMaxReached] = useState(false);
   const [loadingResults, setLoadingResults] = useState(LoadingType.NONE);
   const [searchResults, setSearchResults] = useState<
-    DigitalProductsSearchResult[][] | undefined
+    | DigitalProductsSearchResult[][]
+    | PhysicalProductsSearchResult[][]
+    | undefined
   >();
 
   useEffect(() => {
@@ -31,9 +44,22 @@ const ProductsSearch: FC<{
     setPage(1);
     setMaxReached(false);
     setSearchResults(undefined);
-  }, [searchForDigital]);
+    if (setTransitionLock !== undefined) {
+      setTransitionLock(false);
+    }
+  }, [searchForDigital, setTransitionLock]);
 
   function fetchProducts(query: string, page: number) {
+    if (
+      !searchForDigital &&
+      searchResults &&
+      searchResults[searchResults.length - 1].length < PAGE_SIZE
+    ) {
+      // accounts for weirdness with exact and near-match search results
+      // issue: does not account for the case where count="10n" (this is a hack)
+      setMaxReached(true);
+      return;
+    }
     setLoadingResults(
       page === 1 ? LoadingType.SEARCH_BOX : LoadingType.NEXT_PAGE
     );
@@ -46,6 +72,7 @@ const ProductsSearch: FC<{
         },
       })
       .then((response) => {
+        console.log(response);
         if (response.data.length === 0) {
           setMaxReached(true);
           if (page === 1) {
@@ -58,7 +85,7 @@ const ProductsSearch: FC<{
             setSearchResults([response.data]);
             setMaxReached(false);
           } else {
-            setSearchResults(searchResults!.concat([response.data]));
+            setSearchResults([...searchResults!, response.data]);
           }
         }
         setLoadingResults(LoadingType.NONE);
@@ -96,7 +123,7 @@ const ProductsSearch: FC<{
         </div>
       </div>
 
-      {searchResults === undefined && maxReached && (
+      {searchResults === undefined && maxReached && !transitionLock && (
         <div className={'my-5 text-center text-base-content/25 italic'}>
           <p>
             We couldn&apos;t find any results for this query.
@@ -106,62 +133,71 @@ const ProductsSearch: FC<{
         </div>
       )}
 
-      {searchResults !== undefined && searchResults[0].length > 0 && (
-        <>
-          <div className={'mt-8 mb-6'}>
-            <ProductsTable
-              products={searchResults[page - 1]}
-              buttonContent={'Select'}
-              onClick={(product: DigitalProductsSearchResult) => {
-                setMaxReached(false);
-                setSearchResults(undefined);
-                handleProductSelection(product);
-              }}
-            />
-          </div>
-
-          {maxReached && page + 1 > searchResults.length && (
-            <div className={'my-5 text-center text-base-content/25 italic'}>
-              <p>No more results. Maybe broaden your search?</p>
-            </div>
-          )}
-
-          <div className={'flex place-content-center place-items-center my-2'}>
-            <div className='btn-group'>
-              <button
-                className='btn'
-                onClick={() => setPage(page - 1)}
-                disabled={page <= 1}
-              >
-                <FiArrowLeft />
-              </button>
-
-              <button className='btn no-animation cursor-default hover:bg-neutral hover:border-neutral'>
-                Page {page}
-              </button>
-
-              <button
-                className='btn'
-                onClick={() => {
-                  if (searchResults.length < page + 1) {
-                    fetchProducts(query, page + 1);
-                  } else {
-                    setPage(page + 1);
-                    console.log('page increased from body');
-                  }
+      {searchResults !== undefined &&
+        searchResults[0].length > 0 &&
+        !transitionLock && (
+          <>
+            <div className={'mt-8 mb-6'}>
+              <ProductsTable
+                products={searchResults[page - 1]}
+                productsAreDigital={searchForDigital}
+                buttonContent={'Select'}
+                onClick={(
+                  product:
+                    | DigitalProductsSearchResult
+                    | PhysicalProductsSearchResult
+                ) => {
+                  setMaxReached(false);
+                  setSearchResults(undefined);
+                  handleProductSelection(product);
                 }}
-                disabled={maxReached && page + 1 > searchResults.length}
-              >
-                {loadingResults === LoadingType.NEXT_PAGE ? (
-                  <VscLoading className={'animate-spin'} />
-                ) : (
-                  <FiArrowRight />
-                )}
-              </button>
+              />
             </div>
-          </div>
-        </>
-      )}
+
+            {maxReached && page + 1 > searchResults.length && (
+              <div className={'my-5 text-center text-base-content/25 italic'}>
+                <p>No more results. Maybe broaden your search?</p>
+              </div>
+            )}
+
+            <div
+              className={'flex place-content-center place-items-center my-2'}
+            >
+              <div className='btn-group'>
+                <button
+                  className='btn'
+                  onClick={() => setPage(page - 1)}
+                  disabled={page <= 1}
+                >
+                  <FiArrowLeft />
+                </button>
+
+                <button className='btn no-animation cursor-default hover:bg-neutral hover:border-neutral'>
+                  Page {page}
+                </button>
+
+                <button
+                  className='btn'
+                  onClick={() => {
+                    if (searchResults.length < page + 1) {
+                      fetchProducts(query, page + 1);
+                    } else {
+                      setPage(page + 1);
+                      console.log('page increased from body');
+                    }
+                  }}
+                  disabled={maxReached && page + 1 > searchResults.length}
+                >
+                  {loadingResults === LoadingType.NEXT_PAGE ? (
+                    <VscLoading className={'animate-spin'} />
+                  ) : (
+                    <FiArrowRight />
+                  )}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
     </>
   );
 };

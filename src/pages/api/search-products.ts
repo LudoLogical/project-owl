@@ -8,13 +8,13 @@ export const PAGE_SIZE = 10;
 
 export type DigitalProductsSearchResult = {
   id: number;
-  first_release_date?: number;
   name: string;
-  cover: {
+  first_release_date?: number;
+  cover?: {
     id: number;
     image_id: string;
   };
-  platforms: [
+  platforms?: [
     {
       id: string;
       name: string;
@@ -26,8 +26,12 @@ export type PhysicalProductsSearchResult = {
   id: string;
   name: string;
   year_published?: number;
-  image_url: string;
-  publishers: string[];
+  image_url?: string;
+  primary_publisher?: {
+    id?: string;
+    name?: string;
+    url?: string;
+  };
 };
 
 // noinspection JSUnusedGlobalSymbols
@@ -60,13 +64,18 @@ export default async function handler(
       url: BGA_BASE_URL + '/search',
       params: {
         client_id: BGA_CLIENT_ID,
-        fields: 'id,name,year_published,image_url,publishers',
+        fields: 'id,name,year_published,image_url,primary_publisher',
         limit: PAGE_SIZE,
         skip: PAGE_SIZE * (page - 1),
         name: query,
       },
     }).then((response) => {
-      res.status(200).json(response.data.games);
+      if (response.data.count <= PAGE_SIZE * (page - 1)) {
+        // Prevents "send last results" behavior
+        res.status(200).json([]);
+      } else {
+        res.status(200).json(response.data.games);
+      }
     });
   } else {
     res.status(400).send('isDigital must be either true or false.');

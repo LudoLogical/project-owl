@@ -5,7 +5,10 @@ import STEPS from './steps/steps';
 import Review from '../../model/review';
 import RecursivePartial from '../../utils/recursive-partial';
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
-import { DigitalProductsSearchResult } from '../../pages/api/search-products';
+import {
+  DigitalProductsSearchResult,
+  PhysicalProductsSearchResult,
+} from '../../pages/api/search-products';
 
 const emptyReview: RecursivePartial<Review> = {
   reviewer: {},
@@ -20,7 +23,7 @@ const ReviewWizard: FC = () => {
   const [canAdvance, setCanAdvance] = useState(false);
 
   const [productDetails, setProductDetails] = useState<
-    DigitalProductsSearchResult | undefined
+    DigitalProductsSearchResult | PhysicalProductsSearchResult | undefined
   >();
 
   return (
