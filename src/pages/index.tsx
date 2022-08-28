@@ -7,7 +7,7 @@ const Index: NextPage = () => {
       <Head>
         <title>Project Owl</title>
       </Head>
-      <h1>Home page coming soon!</h1>
+      <h1>Home page coming soon! For now, check out /create-review.</h1>
     </>
   );
 };
