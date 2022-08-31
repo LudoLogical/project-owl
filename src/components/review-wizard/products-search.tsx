@@ -4,7 +4,7 @@ import {
   DigitalProductsSearchResult,
   PAGE_SIZE,
   PhysicalProductsSearchResult,
-} from '../pages/api/search-products';
+} from '../../pages/api/products';
 import { VscLoading } from 'react-icons/vsc';
 import { HiOutlineSearch } from 'react-icons/hi';
 import ProductsTable from './products-table';
@@ -64,7 +64,7 @@ const ProductsSearch: FC<{
       page === 1 ? LoadingType.SEARCH_BOX : LoadingType.NEXT_PAGE
     );
     axios
-      .get('/api/search-products', {
+      .get('/api/products', {
         params: {
           query: query,
           page: page,
@@ -72,7 +72,6 @@ const ProductsSearch: FC<{
         },
       })
       .then((response) => {
-        console.log(response);
         if (response.data.length === 0) {
           setMaxReached(true);
           if (page === 1) {
@@ -97,13 +96,13 @@ const ProductsSearch: FC<{
     <>
       <div className={'my-3'}>
         <h3>What product would you like to review?</h3>
-        <div className='form-control mt-3'>
-          <div className='input-group'>
+        <div className={'form-control mt-3'}>
+          <div className={'input-group'}>
             <input
-              type='text'
+              type={'text'}
               value={searchBoxInput}
-              placeholder='Search…'
-              className='input input-bordered w-64'
+              placeholder={'Search…'}
+              className={'input input-bordered w-64'}
               onChange={(e) => setSearchBoxInput(e.target.value)}
             />
             <button
@@ -183,7 +182,6 @@ const ProductsSearch: FC<{
                       fetchProducts(query, page + 1);
                     } else {
                       setPage(page + 1);
-                      console.log('page increased from body');
                     }
                   }}
                   disabled={maxReached && page + 1 > searchResults.length}

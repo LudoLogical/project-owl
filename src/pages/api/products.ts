@@ -10,6 +10,7 @@ export type DigitalProductsSearchResult = {
   id: number;
   name: string;
   first_release_date?: number;
+  release_dates?: number[];
   cover?: {
     id: number;
     image_id: string;
@@ -51,6 +52,7 @@ export default async function handler(
         'name',
         'cover.image_id',
         'first_release_date',
+        'release_dates',
         'platforms.name',
       ])
       .limit(PAGE_SIZE)

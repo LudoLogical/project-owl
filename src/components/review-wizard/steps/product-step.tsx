@@ -1,24 +1,14 @@
 import { ChangeEvent, FC, useState } from 'react';
-import Review from '../../../model/review';
-import RecursivePartial from '../../../utils/recursive-partial';
 import {
   DigitalProductsSearchResult,
   PhysicalProductsSearchResult,
-} from '../../../pages/api/search-products';
+} from '../../../pages/api/products';
 import { FiX } from 'react-icons/fi';
-import ProductsTable from '../../products-table';
-import ProductsSearch from '../../products-search';
+import ProductsTable from '../products-table';
+import ProductsSearch from '../products-search';
+import StepProps from './step-props';
 
-const ProductStep: FC<{
-  review: RecursivePartial<Review>;
-  setReview: Function;
-  setCanAdvance: Function;
-  productDetails:
-    | DigitalProductsSearchResult
-    | PhysicalProductsSearchResult
-    | undefined;
-  setProductDetails: Function;
-}> = ({
+const ProductStep: FC<StepProps> = ({
   review,
   setReview,
   setCanAdvance,

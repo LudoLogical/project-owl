@@ -3,13 +3,13 @@ import Image from 'next/image';
 import {
   DigitalProductsSearchResult,
   PhysicalProductsSearchResult,
-} from '../pages/api/search-products';
+} from '../../pages/api/products';
 import {
   getIGDBImageFromID,
   IGDB_IMAGE_RESOLUTIONS,
   IGDBImageType,
-} from '../utils/igdb/igdb-frontend-utils';
-import { timestampFormatDMY } from '../utils/timestamp-format';
+} from '../../utils/igdb/igdb-frontend-utils';
+import { timestampFormatDMY } from '../../utils/timestamp-format';
 import { FaGamepad } from 'react-icons/fa';
 
 const ProductsTable: FC<{
